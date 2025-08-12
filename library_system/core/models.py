@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import timedelta, date
+from django.core.exceptions import ValidationError
 
 class Book(models.Model):
     title = models.CharField(max_length=200)
@@ -27,6 +28,11 @@ class Transaction(models.Model):
     fine = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
     extended = models.BooleanField(default=False)  # ← NEW
 
+    def clean(self):
+        # Prevent return date before borrow date
+        if self.return_date and self.borrow_date and self.return_date < self.borrow_date:
+            raise ValidationError("Return date cannot be before borrow date")
+
     def save(self, *args, **kwargs):
         # Ensure borrow_date is set
         if not self.borrow_date:
@@ -38,15 +44,10 @@ class Transaction(models.Model):
 
         # Calculate fine if returned
         if self.return_date:
-            # Prevent return date before borrow date
-            if self.return_date < self.borrow_date:
-                raise ValueError("Return date cannot be before borrow date")
-
             late_days = (self.return_date - self.due_date).days
             self.fine = max(0, late_days * 10)
 
         super().save(*args, **kwargs)
-
 
 
 
