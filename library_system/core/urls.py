@@ -2,7 +2,6 @@ from django.urls import path
 from .views import RegisterAPI, LoginAPI, BookListAPI, BorrowBookAPI, ReturnBookAPI, UserTransactionHistoryAPI, PayFineAPI, BookCreateAPI, BookUpdateAPI, BookDeleteAPI, UserDashboardAPI, OverdueBooksAPI, ExtendDueDateAPI
 urlpatterns = [
     path('api/extend-due-date/', ExtendDueDateAPI.as_view(), name='api-extend-due-date'),
-    path('api/pay-fine/', PayFineAPI.as_view(), name='api-pay-fine'),
     path('api/books/create/', BookCreateAPI.as_view(), name='api-book-create'),
     path('api/books/<int:pk>/update/', BookUpdateAPI.as_view(), name='api-book-update'),
     path('api/books/<int:pk>/delete/', BookDeleteAPI.as_view(), name='api-book-delete'),

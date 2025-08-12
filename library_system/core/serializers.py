@@ -20,7 +20,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             password=validated_data['password']
         )
-        Member.objects.create(user=user)
+        
+        member = Member.objects.create(user=user)
         return user
 
 class BookSerializer(serializers.ModelSerializer):
@@ -28,13 +29,10 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = '__all__'
 
-class TransactionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Transaction
-        fields = '__all__'
-
 class TransactionDetailSerializer(serializers.ModelSerializer):
     book = BookSerializer()
+    member = serializers.StringRelatedField()  # or MemberSerializer()
+
     class Meta:
         model = Transaction
         fields = '__all__'

@@ -19,16 +19,34 @@ class Member(models.Model):
         return self.user.username
 
 class Transaction(models.Model):
-    # existing fields...
+    member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    borrow_date = models.DateField(auto_now_add=True)
+    return_date = models.DateField(null=True, blank=True)
     due_date = models.DateField()
     fine = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
     extended = models.BooleanField(default=False)  # ← NEW
 
     def save(self, *args, **kwargs):
+        # Ensure borrow_date is set
+        if not self.borrow_date:
+            self.borrow_date = date.today()
+
+        # Set default due date if not provided
         if not self.due_date:
             self.due_date = self.borrow_date + timedelta(days=14)
+
+        # Calculate fine if returned
         if self.return_date:
+            # Prevent return date before borrow date
+            if self.return_date < self.borrow_date:
+                raise ValueError("Return date cannot be before borrow date")
+
             late_days = (self.return_date - self.due_date).days
             self.fine = max(0, late_days * 10)
+
         super().save(*args, **kwargs)
+
+
+
 
